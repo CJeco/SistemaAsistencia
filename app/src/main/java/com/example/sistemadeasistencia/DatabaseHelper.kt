@@ -112,6 +112,5 @@ class DatabaseHelper(private val context: Context) :
             arrayOf(docenteId.toString(), fechaActual)
         )
         return filasAfectadas > 0
-
     }
 }
