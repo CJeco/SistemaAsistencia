@@ -62,7 +62,18 @@ class DatabaseHelper(private val context: Context) :
         //para migracion futura
     }
 
-    //metodos de consulta y registro de asistencia
+    //Registrar nuevo docente en la base de datos
+    fun registrarDocente(dni: String, nombres: String, apellidos: String): Boolean {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("dni", dni)
+            put("nombres", nombres)
+            put("apellidos", apellidos)
+        }
+        val resultado = db.insert("docentes", null, values)
+        return resultado != -1L
+    }
+
 
     /*busqueda de un docente por su dni activo*/
     fun obtenerDocentePorDni(dni: String): Cursor?{
@@ -99,7 +110,7 @@ class DatabaseHelper(private val context: Context) :
     /*registra la hora de salida buscando el ultimo marcaje de dia*/
     fun registrarSalida(docenteId: Int): Boolean{
         val db = this.writableDatabase
-        val fechaActual = SimpleDateFormat("yyy-MM-dd", Locale.getDefault()).format(Date())
+        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val horaActual = SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(Date())
         val values = ContentValues().apply{
             put("hora_salida",horaActual)
@@ -112,5 +123,17 @@ class DatabaseHelper(private val context: Context) :
             arrayOf(docenteId.toString(), fechaActual)
         )
         return filasAfectadas > 0
+    }
+
+    fun obtenerReporteAsistencia(): Cursor? {
+        val db = this.readableDatabase
+        return db.rawQuery(
+            """
+            SELECT d.nombres, d.apellidos, a.fecha, a.hora_entrada, a.hora_salida 
+            FROM asistencia_docentes a 
+            INNER JOIN docentes d ON a.docente_id = d.id 
+            ORDER BY a.fecha DESC, a.hora_entrada DESC
+            """.trimIndent(), null
+        )
     }
 }
