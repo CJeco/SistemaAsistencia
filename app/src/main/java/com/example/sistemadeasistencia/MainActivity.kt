@@ -179,6 +179,7 @@ class MainActivity : AppCompatActivity() {
                     1 -> mostrarReportes()
                 }
             }
+            .setNegativeButton("Cancelar", null)
             .show()
     }
 

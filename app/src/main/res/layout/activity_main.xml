@@ -1,69 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:gravity="center_horizontal">
+    android:background="#FFFFFF"
+    android:padding="24dp"
+    tools:context=".MainActivity">
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Asistencia Docente"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"/>
-
-    <FrameLayout
-        android:layout_width="260dp"
-        android:layout_height="260dp"
-        android:layout_marginTop="24dp"
-        android:background="@android:drawable/dialog_holo_light_frame"
-        android:padding="16dp">
-
-
-        <!--visor central-->
-        <TextView
-            android:id="@+id/tvResultado"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="Presione Escanear para leer Fotocheck o QR"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-    </FrameLayout>
-
-    <!--btn de escaneo-->
-    <Button
-        android:id="@+id/btnEscanear"
-        android:layout_width="220dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="24dp"
-        android:text="Escanear"
-        android:textSize="18sp"/>
-
-    <!--Barra de reportes-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:gravity="bottom|start"
+    <!-- BOTÓN DE ADMINISTRACIÓN / REPORTES -->
+    <ImageButton
+        android:id="@+id/btnReportes"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Ver Registros"
-        android:src="@android:drawable/ic_menu_today">
+        android:contentDescription="Panel de Administración"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_admin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btnReportes"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Ver Registros"
-            android:src="@android:drawable/ic_menu_today"/>
+    <!-- ENCABEZADO Y MARCA -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnReportes">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next Level"
+            android:textColor="#0F172A"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Sistema de Asistencia"
+            android:textColor="#64748B"
+            android:textSize="16sp"
+            android:textStyle="normal" />
     </LinearLayout>
 
-</LinearLayout>
+    <!-- TARJETA DE ESTADO / ÚLTIMO MARCAJE -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardResultado"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:cardBackgroundColor="#F8FAFC"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#E2E8F0"
+        app:strokeWidth="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvResultado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Listos para escanear"
+                android:textColor="#334155"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- BOTÓN PRINCIPAL PARA ESCANEAR -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEscanear"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="24dp"
+        android:text="Escanear Código QR"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:backgroundTint="#2563EB"
+        app:cornerRadius="16dp"
+        app:elevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
