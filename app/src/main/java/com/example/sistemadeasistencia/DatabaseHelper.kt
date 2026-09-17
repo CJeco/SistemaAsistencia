@@ -62,7 +62,7 @@ class DatabaseHelper(private val context: Context) :
         //para migracion futura
     }
 
-    //Registrar nuevo docente en la base de datos
+
     fun registrarDocente(dni: String, nombres: String, apellidos: String): Boolean {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -84,46 +84,47 @@ class DatabaseHelper(private val context: Context) :
         )
     }
 
-    /*registro de entrada del docente en la tabla asistencia*/
 
-    fun registrarEntrada(
-        docenteId: Int,
-        estado: String = "PRESENTE",
-        observacion: String = ""
-    ):Boolean{
+    fun registrarEntrada(docenteId: Int): Boolean{
         val db = this.writableDatabase
-        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val horaActual = SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(Date())
+        val sdFecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sdHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val fechaActual = sdFecha.format(Date())
+        val horaActual = sdHora.format(Date())
 
         val values = ContentValues().apply {
             put("docente_id", docenteId)
             put("fecha", fechaActual)
             put("hora_entrada", horaActual)
-            put("estado", estado)
-            put("observacion", observacion)
         }
 
         val resultado = db.insert("asistencia_docentes", null, values)
         return resultado != -1L
-
     }
-    /*registra la hora de salida buscando el ultimo marcaje de dia*/
+
+
+
     fun registrarSalida(docenteId: Int): Boolean{
         val db = this.writableDatabase
-        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val horaActual = SimpleDateFormat("HH-mm-ss", Locale.getDefault()).format(Date())
-        val values = ContentValues().apply{
-            put("hora_salida",horaActual)
+        val sdFecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val sdHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val fechaActual = sdFecha.format(Date())
+        val horaActual = sdHora.format(Date())
+
+        val values = ContentValues().apply {
+            put("hora_salida", horaActual)
         }
 
         val filasAfectadas = db.update(
             "asistencia_docentes",
             values,
-            "docente_id = ? AND fecha = ? AND hora_salida IS NULL",
+            "docente_id = ? AND hora_salida IS NULL",
             arrayOf(docenteId.toString(), fechaActual)
+
         )
         return filasAfectadas > 0
     }
+
 
     fun obtenerReporteAsistencia(): Cursor? {
         val db = this.readableDatabase

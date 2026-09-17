@@ -1,6 +1,7 @@
 package com.example.sistemadeasistencia
 
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -18,6 +19,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -184,35 +186,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mostrarFormularioRegistroDocente() {
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 40, 50, 40)
-        }
+        val builder = AlertDialog.Builder(this)
+        val inflater = layoutInflater
+        val dialogView = inflater.inflate(R.layout.dialog_registro_docente, null)
 
-        val inputDni = EditText(this).apply { hint = "DNI / Código" }
-        val inputNombres = EditText(this).apply { hint = "Nombres" }
-        val inputApellidos = EditText(this).apply { hint = "Apellidos" }
+        val etDni = dialogView.findViewById<EditText>(R.id.etDniDialog)
+        val etNombres = dialogView.findViewById<EditText>(R.id.etNombresDialog)
+        val etApellidos = dialogView.findViewById<EditText>(R.id.etApellidosDialog)
 
-        layout.addView(inputDni)
-        layout.addView(inputNombres)
-        layout.addView(inputApellidos)
+        builder.setView(dialogView)
+        builder.setPositiveButton("Guardar y Generar QR") { _, _ ->
+            val dni = etDni.text.toString().trim()
+            val txtNombres = etNombres.text.toString().trim()
+            val txtApellidos = etApellidos.text.toString().trim()
 
-        AlertDialog.Builder(this)
-            .setTitle("Nuevo Docente")
-            .setView(layout)
-            .setPositiveButton("Guardar y Generar QR") { _, _ ->
-                val dni = inputDni.text.toString().trim()
-                val nombres = inputNombres.text.toString().trim()
-                val apellidos = inputApellidos.text.toString().trim()
-
-                if (dni.isNotEmpty() && nombres.isNotEmpty() && apellidos.isNotEmpty()) {
-                    registrarYMostrarQR(dni, nombres, apellidos)
+            if (dni.isNotEmpty() && txtNombres.isNotEmpty() && txtApellidos.isNotEmpty()) {
+                val exito = dbHelper.registrarDocente(dni, txtNombres, txtApellidos)
+                if (exito) {
+                    registrarYMostrarQR(dni, txtNombres, txtApellidos)
                 } else {
-                    Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "El DNI ya está registrado", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
+        }
+        builder.setNegativeButton("Cancelar", null)
+        builder.show()
     }
 
     private fun registrarYMostrarQR(dni: String, nombres: String, apellidos: String) {
@@ -251,50 +251,49 @@ class MainActivity : AppCompatActivity() {
     private fun mostrarReportes() {
         val cursor = dbHelper.obtenerReporteAsistencia()
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Reporte de Asistencia")
+        builder.setTitle("Historial de Asistencias")
 
-        val reportLayout = LinearLayout(this).apply {
+        val scrollView = ScrollView(this)
+        val contenedorPrincipal = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(40, 20, 40, 20)
+            setPadding(40, 30, 40, 30)
         }
 
         if (cursor != null && cursor.moveToFirst()) {
+            val nombresIndex = cursor.getColumnIndex("nombres")
+            val apellidosIndex = cursor.getColumnIndex("apellidos")
+            val fechaIndex = cursor.getColumnIndex("fecha")
+            val entradaIndex = cursor.getColumnIndex("hora_entrada")
+            val salidaIndex = cursor.getColumnIndex("hora_salida")
+
             do {
-                val nombreIndex = cursor.getColumnIndex("nombres")
-                val apellidoIndex = cursor.getColumnIndex("apellidos")
-                val fechaIndex = cursor.getColumnIndex("fecha")
-                val entradaIndex = cursor.getColumnIndex("hora_entrada")
-                val salidaIndex = cursor.getColumnIndex("hora_salida")
+                val nombre = if (nombresIndex != -1) cursor.getString(nombresIndex) else ""
+                val apellido = if (apellidosIndex != -1) cursor.getString(apellidosIndex) else ""
+                val fecha = if (fechaIndex != -1) cursor.getString(fechaIndex) else ""
+                val entrada = if (entradaIndex != -1) cursor.getString(entradaIndex) else "--:--"
+                val salida = if (salidaIndex != -1 && !cursor.isNull(salidaIndex)) cursor.getString(salidaIndex) else "En curso"
 
-                if (nombreIndex != -1 && apellidoIndex != -1 && fechaIndex != -1 && entradaIndex != -1 && salidaIndex != -1) {
-                    val nombre = cursor.getString(nombreIndex)
-                    val apellido = cursor.getString(apellidoIndex)
-                    val fecha = cursor.getString(fechaIndex)
-                    val entrada = cursor.getString(entradaIndex)
-                    val salida = cursor.getString(salidaIndex) ?: "--:--:--"
+                val itemView = layoutInflater.inflate(R.layout.item_reporte_asistencia, contenedorPrincipal, false)
+                val tvNombreReporte = itemView.findViewById<TextView>(R.id.tvNombreReporte)
+                val tvDetalleReporte = itemView.findViewById<TextView>(R.id.tvDetalleReporte)
 
-                    val itemText = TextView(this).apply {
-                        text = "$fecha | $nombre $apellido\nEntrada: $entrada | Salida: $salida\n-----------------------------------"
-                        textSize = 14f
-                        setPadding(0, 10, 0, 10)
-                    }
-                    reportLayout.addView(itemText)
-                }
+                tvNombreReporte.text = "$nombre $apellido"
+                tvDetalleReporte.text = "📅 Fecha: $fecha\n🟢 Entrada: $entrada  |  🔴 Salida: $salida"
+
+                contenedorPrincipal.addView(itemView)
             } while (cursor.moveToNext())
             cursor.close()
         } else {
-            val emptyText = TextView(this).apply {
-                text = "No hay registros de asistencia."
+            val tvVacio = TextView(this).apply {
+                text = "No hay registros de asistencia aún."
+                textSize = 16f
                 gravity = Gravity.CENTER
                 setPadding(0, 40, 0, 40)
             }
-            reportLayout.addView(emptyText)
+            contenedorPrincipal.addView(tvVacio)
         }
 
-        val scrollView = ScrollView(this).apply {
-            addView(reportLayout)
-        }
-
+        scrollView.addView(contenedorPrincipal)
         builder.setView(scrollView)
         builder.setPositiveButton("Cerrar", null)
         builder.show()

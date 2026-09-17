@@ -10,7 +10,6 @@
     android:padding="24dp"
     tools:context=".MainActivity">
 
-    <!-- BOTÓN DE ADMINISTRACIÓN / REPORTES -->
     <ImageButton
         android:id="@+id/btnReportes"
         android:layout_width="48dp"
@@ -22,20 +21,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- ENCABEZADO Y MARCA -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="80dp"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnReportes">
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Logo Next Level"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.M3.Comp.AppBar.CircularImageView" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="Next Level"
             android:textColor="#0F172A"
             android:textSize="32sp"
@@ -45,13 +57,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:gravity="center"
             android:text="Sistema de Asistencia"
             android:textColor="#64748B"
             android:textSize="16sp"
             android:textStyle="normal" />
     </LinearLayout>
 
-    <!-- TARJETA DE ESTADO / ÚLTIMO MARCAJE -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardResultado"
         android:layout_width="0dp"
@@ -85,18 +97,17 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- BOTÓN PRINCIPAL PARA ESCANEAR -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnEscanear"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_width="281dp"
+        android:layout_height="61dp"
         android:layout_marginBottom="24dp"
         android:text="Escanear Código QR"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:backgroundTint="#2563EB"
+        app:backgroundTint="#C62828"
         app:cornerRadius="16dp"
         app:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
