@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Panel de Administración"
+        android:textColor="#000000"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/btnRegistrarDocenteNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registrar Nuevo Docente"
+        android:backgroundTint="#C62828"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnVerReportesNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ver Reportes"
+        android:backgroundTint="#C62828"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/btnVolver"
+        style="?attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Volver al Inicio"
+        android:textColor="#C62828"/>
+</LinearLayout>

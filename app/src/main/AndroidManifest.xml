@@ -11,6 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SistemaDeAsistencia">
+        <activity android:name=".AdminLoginActivity" android:exported="false" />
+        <activity android:name=".AdminPanelActivity" android:exported="false" />
+        <activity android:name=".RegistroDocenteActivity" android:exported="false" />
+        <activity android:name=".HistorialAsistenciasActivity" android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
