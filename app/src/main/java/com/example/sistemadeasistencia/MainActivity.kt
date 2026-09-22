@@ -19,6 +19,9 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,7 +74,6 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
-        // Navegación al apartado de administración (reemplaza el diálogo flotante)
         btnAdmin.setOnClickListener {
             val intent = Intent(this, AdminLoginActivity::class.java)
             startActivity(intent)
@@ -90,7 +92,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun procesarAsistenciaDocente(dniOcodigo: String) {
-        val cursor = dbHelper.obtenerDocentePorDni(dniOcodigo)
+        val codigoLimpio = dniOcodigo.trim()
+        val cursor = dbHelper.obtenerDocentePorDni(codigoLimpio)
 
         if (cursor != null && cursor.moveToFirst()) {
             val idIndex = cursor.getColumnIndex("id")
@@ -101,24 +104,44 @@ class MainActivity : AppCompatActivity() {
                 val docenteId = cursor.getInt(idIndex)
                 val nombreCompleto = "${cursor.getString(nombresIndex)} ${cursor.getString(apellidosIndex)}"
 
-                val exitoEntrada = dbHelper.registrarEntrada(docenteId)
+                val sdFecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val fechaActual = sdFecha.format(Date())
 
-                if (exitoEntrada) {
-                    tvResultado.text = "Último marcaje:\n$nombreCompleto"
-                    mostrarConfirmacionExito(nombreCompleto, "Entrada")
-                } else {
-                    val exitoSalida = dbHelper.registrarSalida(docenteId)
-                    if (exitoSalida) {
-                        tvResultado.text = "Último marcaje:\n$nombreCompleto"
-                        mostrarConfirmacionExito(nombreCompleto, "Salida")
+                val cursorAsistencia = dbHelper.obtenerAsistenciaHoy(docenteId, fechaActual)
+
+                if (cursorAsistencia != null && cursorAsistencia.moveToFirst()) {
+                    val horaSalidaIndex = cursorAsistencia.getColumnIndex("hora_salida")
+                    val horaSalida = if (horaSalidaIndex != -1) cursorAsistencia.getString(horaSalidaIndex) else null
+
+                    if (horaSalida == null) {
+                        // Ya tiene entrada registrada hoy: registrar salida
+                        val exitoSalida = dbHelper.registrarSalida(docenteId)
+                        if (exitoSalida) {
+                            tvResultado.text = "Último marcaje:\n$nombreCompleto"
+                            mostrarConfirmacionExito(nombreCompleto, "Salida")
+                        } else {
+                            Toast.makeText(this, "Error al registrar la salida", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
+                        // Ya registró entrada y salida hoy
                         Toast.makeText(this, "El docente ya registró entrada y salida hoy", Toast.LENGTH_LONG).show()
+                    }
+                    cursorAsistencia.close()
+                } else {
+                    // No tiene registro hoy: registrar entrada
+                    cursorAsistencia?.close()
+                    val exitoEntrada = dbHelper.registrarEntrada(docenteId)
+                    if (exitoEntrada) {
+                        tvResultado.text = "Último marcaje:\n$nombreCompleto"
+                        mostrarConfirmacionExito(nombreCompleto, "Entrada")
+                    } else {
+                        Toast.makeText(this, "Error al registrar la entrada", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
             cursor.close()
         } else {
-            tvResultado.text = "No encontrado: $dniOcodigo"
+            tvResultado.text = "No encontrado: $codigoLimpio"
             Toast.makeText(this, "Docente no registrado en la BD", Toast.LENGTH_SHORT).show()
         }
     }
