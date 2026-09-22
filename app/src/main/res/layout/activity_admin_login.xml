@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:backgroundColor="#333333">
+    android:background="@color/white">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/logo"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.M3.Comp.AppBar.CircularImageView"
         android:layout_marginBottom="24dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Acceso Administrador"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/text_primary"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -25,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ingrese el PIN de seguridad:"
-        android:textColor="#CCCCCC"
+        android:textColor="@color/text_secondary"
         android:layout_marginTop="8dp"
         android:textSize="14sp" />
 
@@ -34,8 +37,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="PIN (Ejemplo: 1234)"
-        android:textColorHint="#888888"
-        android:textColor="#FFFFFF"
+        android:textColorHint="@color/text_secondary"
+        android:textColor="@color/text_primary"
+        android:backgroundTint="@color/primary_red"
         android:inputType="numberPassword"
         android:layout_marginTop="24dp"/>
 
@@ -52,14 +56,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancelar"
-            android:textColor="#BB86FC"/>
+            android:textColor="@color/text_secondary"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnIngresar"
-            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ingresar"
-            android:textColor="#BB86FC"/>
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary_red"
+            app:cornerRadius="12dp"
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 </LinearLayout>

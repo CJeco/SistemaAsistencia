@@ -5,14 +5,14 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
-    android:backgroundColor="#333333">
+    android:background="@color/white">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Historial de Asistencias"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp"/>
 
@@ -27,16 +27,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No hay registros de asistencia aún."
-        android:textColor="#CCCCCC"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
         android:visibility="visible"
         android:layout_marginTop="40dp"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCerrarHistorial"
         style="?attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cerrar"
-        android:textColor="#BB86FC"
+        android:textColor="@color/primary_red"
+        android:textStyle="bold"
         android:layout_marginTop="16dp"/>
 </LinearLayout>
