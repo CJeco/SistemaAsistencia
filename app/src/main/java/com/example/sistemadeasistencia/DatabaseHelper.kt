@@ -25,6 +25,7 @@ class DatabaseHelper(private val context: Context) :
 
     init {
         copiarBaseDeDatosSiEsNecesario()
+        eliminarDuplicados()
     }
 
     private fun copiarBaseDeDatosSiEsNecesario() {
@@ -87,6 +88,29 @@ class DatabaseHelper(private val context: Context) :
         // para migración futura
     }
 
+    fun eliminarDuplicados() {
+        try {
+            val db = this.writableDatabase
+            // 1. Eliminar docentes duplicados manteniendo el menor ID
+            db.execSQL("""
+                DELETE FROM docentes 
+                WHERE id NOT IN (
+                    SELECT MIN(id) FROM docentes GROUP BY TRIM(dni)
+                )
+            """.trimIndent())
+
+            // 2. Eliminar asistencias duplicadas para el mismo docente en la misma fecha y hora de entrada
+            db.execSQL("""
+                DELETE FROM asistencia_docentes 
+                WHERE id NOT IN (
+                    SELECT MIN(id) FROM asistencia_docentes GROUP BY docente_id, fecha, hora_entrada
+                )
+            """.trimIndent())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun docenteExiste(dni: String): Boolean {
         val db = this.readableDatabase
         val cursor = db.rawQuery(
@@ -134,12 +158,28 @@ class DatabaseHelper(private val context: Context) :
         )
     }
 
+    fun existeEntradaHoy(docenteId: Int, fecha: String): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT id FROM asistencia_docentes WHERE docente_id = ? AND fecha = ?",
+            arrayOf(docenteId.toString(), fecha)
+        )
+        val existe = cursor.moveToFirst()
+        cursor.close()
+        return existe
+    }
+
     fun registrarEntrada(docenteId: Int): Boolean {
-        val db = this.writableDatabase
         val sdFecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val sdHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         val ahora = Date()
         val fechaActual = sdFecha.format(ahora)
+
+        if (existeEntradaHoy(docenteId, fechaActual)) {
+            return false // Ya existe una entrada para hoy
+        }
+
+        val db = this.writableDatabase
         val horaActual = sdHora.format(ahora)
 
         val values = ContentValues().apply {
@@ -179,7 +219,7 @@ class DatabaseHelper(private val context: Context) :
         val db = this.readableDatabase
         return db.rawQuery(
             """
-            SELECT d.nombres, d.apellidos, a.fecha, a.hora_entrada, a.hora_salida 
+            SELECT DISTINCT d.nombres, d.apellidos, a.fecha, a.hora_entrada, a.hora_salida 
             FROM asistencia_docentes a 
             INNER JOIN docentes d ON a.docente_id = d.id 
             ORDER BY a.fecha DESC, a.hora_entrada DESC
