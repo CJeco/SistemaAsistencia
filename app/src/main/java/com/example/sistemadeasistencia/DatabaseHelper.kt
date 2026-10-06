@@ -58,9 +58,13 @@ class DatabaseHelper(private val context: Context) :
         db?.execSQL("""
             CREATE TABLE IF NOT EXISTS docentes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                dni TEXT NOT NULL UNIQUE,
+                dni TEXT UNIQUE NOT NULL,
                 nombres TEXT NOT NULL,
-                apellidos TEXT NOT NULL
+                apellidos TEXT NOT NULL,
+                correo TEXT,
+                telefono TEXT,
+                horario_entrada TEXT NOT NULL DEFAULT '07:00:00',
+                activo INTEGER DEFAULT 1
             );
         """.trimIndent())
 
@@ -71,7 +75,10 @@ class DatabaseHelper(private val context: Context) :
                 fecha TEXT NOT NULL,
                 hora_entrada TEXT NOT NULL,
                 hora_salida TEXT,
-                FOREIGN KEY(docente_id) REFERENCES docentes(id) ON DELETE CASCADE
+                minutos_tardanza INTEGER DEFAULT 0,
+                estado TEXT NOT NULL DEFAULT 'Presente',
+                observacion TEXT,
+                FOREIGN KEY (docente_id) REFERENCES docentes(id) ON DELETE CASCADE
             );
         """.trimIndent())
     }
@@ -86,8 +93,8 @@ class DatabaseHelper(private val context: Context) :
             "SELECT id FROM docentes WHERE TRIM(dni) = ?",
             arrayOf(dni.trim())
         )
-        val existe = cursor != null && cursor.moveToFirst()
-        cursor?.close()
+        val existe = cursor.moveToFirst()
+        cursor.close()
         return existe
     }
 
@@ -102,6 +109,8 @@ class DatabaseHelper(private val context: Context) :
             put("dni", dniLimpio)
             put("nombres", nombres.trim())
             put("apellidos", apellidos.trim())
+            put("horario_entrada", "07:00:00")
+            put("activo", 1)
         }
         val resultado = db.insert("docentes", null, values)
         return resultado != -1L
@@ -137,6 +146,8 @@ class DatabaseHelper(private val context: Context) :
             put("docente_id", docenteId)
             put("fecha", fechaActual)
             put("hora_entrada", horaActual)
+            put("estado", "Presente")
+            put("minutos_tardanza", 0)
         }
 
         val resultado = db.insert("asistencia_docentes", null, values)

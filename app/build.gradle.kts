@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.sistemadeasistencia"
-        minSdk = 24
-        targetSdk = 37
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -48,4 +48,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
 }

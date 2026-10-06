@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,6 +29,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var tvResultado: TextView
+
+    private val zxingLauncher = registerForActivityResult(ScanContract()) { result ->
+        if (result.contents == null) {
+            Toast.makeText(this, "Escaneo Cancelado", Toast.LENGTH_SHORT).show()
+        } else {
+            procesarAsistenciaDocente(result.contents.trim())
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,22 +53,32 @@ class MainActivity : AppCompatActivity() {
         probarConexionDB()
 
         val btnEscanear = findViewById<Button>(R.id.btnEscanear)
-        val btnAdmin = findViewById<ImageButton>(R.id.btnReportes) // La tuerquita
+        val btnAdmin = findViewById<ImageButton>(R.id.btnReportes)
         tvResultado = findViewById(R.id.tvResultado)
 
-        val options = GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(
-                Barcode.FORMAT_QR_CODE,
-                Barcode.FORMAT_PDF417,
-                Barcode.FORMAT_CODE_128,
-                Barcode.FORMAT_CODE_39,
-                Barcode.FORMAT_EAN_13
-            )
-            .build()
-
-        val scanner = GmsBarcodeScanning.getClient(this, options)
-
         btnEscanear.setOnClickListener {
+            iniciarEscaneo()
+        }
+
+        btnAdmin.setOnClickListener {
+            val intent = Intent(this, AdminLoginActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun iniciarEscaneo() {
+        try {
+            val options = GmsBarcodeScannerOptions.Builder()
+                .setBarcodeFormats(
+                    Barcode.FORMAT_QR_CODE,
+                    Barcode.FORMAT_PDF417,
+                    Barcode.FORMAT_CODE_128,
+                    Barcode.FORMAT_CODE_39,
+                    Barcode.FORMAT_EAN_13
+                )
+                .build()
+
+            val scanner = GmsBarcodeScanning.getClient(this, options)
             scanner.startScan()
                 .addOnSuccessListener { barcode: Barcode ->
                     val codigo = barcode.rawValue
@@ -69,15 +89,26 @@ class MainActivity : AppCompatActivity() {
                 .addOnCanceledListener {
                     Toast.makeText(this, "Escaneo Cancelado", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener { e: Exception ->
-                    Toast.makeText(this, "Error de escaneo: ${e.message}", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener {
+                    // Si falla Google Play Services scanner, usar el escáner ZXing integrado
+                    iniciarEscaneoZxing()
                 }
+        } catch (e: Exception) {
+            Log.e("SCANNER", "Error con GmsBarcodeScanner, usando ZXing", e)
+            iniciarEscaneoZxing()
         }
+    }
 
-        btnAdmin.setOnClickListener {
-            val intent = Intent(this, AdminLoginActivity::class.java)
-            startActivity(intent)
+    private fun iniciarEscaneoZxing() {
+        val options = ScanOptions().apply {
+            setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
+            setPrompt("Escanee el código QR del docente")
+            setCameraId(0)
+            setBeepEnabled(true)
+            setBarcodeImageEnabled(false)
+            setOrientationLocked(false)
         }
+        zxingLauncher.launch(options)
     }
 
     private fun probarConexionDB() {
@@ -114,7 +145,6 @@ class MainActivity : AppCompatActivity() {
                     val horaSalida = if (horaSalidaIndex != -1) cursorAsistencia.getString(horaSalidaIndex) else null
 
                     if (horaSalida == null) {
-                        // Ya tiene entrada registrada hoy: registrar salida
                         val exitoSalida = dbHelper.registrarSalida(docenteId)
                         if (exitoSalida) {
                             tvResultado.text = "Último marcaje:\n$nombreCompleto"
@@ -123,12 +153,10 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(this, "Error al registrar la salida", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        // Ya registró entrada y salida hoy
                         Toast.makeText(this, "El docente ya registró entrada y salida hoy", Toast.LENGTH_LONG).show()
                     }
                     cursorAsistencia.close()
                 } else {
-                    // No tiene registro hoy: registrar entrada
                     cursorAsistencia?.close()
                     val exitoEntrada = dbHelper.registrarEntrada(docenteId)
                     if (exitoEntrada) {
@@ -141,6 +169,7 @@ class MainActivity : AppCompatActivity() {
             }
             cursor.close()
         } else {
+            cursor?.close()
             tvResultado.text = "No encontrado: $codigoLimpio"
             Toast.makeText(this, "Docente no registrado en la BD", Toast.LENGTH_SHORT).show()
         }
