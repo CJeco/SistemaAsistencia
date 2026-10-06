@@ -17,18 +17,40 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnExportarExcel"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="Exportar Reporte a Excel (.xlsx)"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:backgroundTint="#2E7D32"
-        app:cornerRadius="12dp"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnExportarExcel"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Excel 📊"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="#2E7D32"
+            app:cornerRadius="12dp"
+            android:layout_marginEnd="6dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLimpiarRegistros"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Borrar Todo 🗑️"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="#C62828"
+            app:cornerRadius="12dp"
+            android:layout_marginStart="6dp"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistorial"

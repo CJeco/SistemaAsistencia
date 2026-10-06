@@ -226,4 +226,10 @@ class DatabaseHelper(private val context: Context) :
             """.trimIndent(), null
         )
     }
+
+    fun limpiarTodosLosRegistros(): Boolean {
+        val db = this.writableDatabase
+        val filasAfectadas = db.delete("asistencia_docentes", null, null)
+        return filasAfectadas >= 0
+    }
 }
